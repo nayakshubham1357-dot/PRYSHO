@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRYSHO — Something Different</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    background:#020817;
+    color:#fff;
+    overflow:hidden;
+}
+
+/* =========================
+   SPLASH SCREEN
+========================= */
+
+#splash{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    background:
+        radial-gradient(circle at 50% 45%,#123d83 0%,#071b3c 32%,#020817 72%);
+    animation:splashOut 1.5s ease 4.8s forwards;
+}
+
+.splash-glow{
+    position:absolute;
+    width:280px;
+    height:280px;
+    border-radius:50%;
+    background:#1769d4;
+    filter:blur(100px);
+    opacity:.25;
+}
+
+.logo{
+    position:relative;
+    text-align:center;
+    animation:logoEnter 2s cubic-bezier(.16,1,.3,1);
+}
+
+.logo-symbol{
+    width:100px;
+    height:100px;
+    margin:auto;
+    border:2px solid #d9b45b;
+    border-radius:28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:55px;
+    font-weight:900;
+    color:#fff;
+    box-shadow:
+        0 0 15px #d9b45b,
+        inset 0 0 25px #123d83;
+    transform:rotate(-8deg);
+    position:relative;
+}
+
+.logo-symbol:before{
+    content:"";
+    position:absolute;
+    width:125px;
+    height:45px;
+    border:2px solid #d9b45b;
+    border-left-color:transparent;
+    border-right-color:transparent;
+    border-radius:50%;
+    transform:rotate(-25deg);
+    opacity:.8;
+}
+
+.logo-symbol:after{
+    content:"✦";
+    position:absolute;
+    right:-27px;
+    top:-20px;
+    color:#f3d47a;
+    font-size:18px;
+}
+
+.logo-name{
+    margin-top:25px;
+    font-size:38px;
+    letter-spacing:9px;
+    font-weight:800;
+    color:#fff;
+    text-shadow:0 0 20px #1d70df;
+}
+
+.heart-code{
+    margin-top:10px;
+    font-size:21px;
+    color:#d9b45b;
+    letter-spacing:5px;
+}
+
+.tagline{
+    margin-top:28px;
+    font-size:14px;
+    letter-spacing:3px;
+    color:#d8e4ff;
+    opacity:0;
+    animation:taglineIn 1.2s ease 2.2s forwards;
+}
+
+.loader{
+    position:absolute;
+    bottom:70px;
+    width:110px;
+    height:2px;
+    background:#17345f;
+    overflow:hidden;
+}
+
+.loader:after{
+    content:"";
+    position:absolute;
+    width:45%;
+    height:100%;
+    background:#d9b45b;
+    animation:loading 3.5s ease forwards;
+}
+
+/* =========================
+   APP
+========================= */
+
+#app{
+    height:100vh;
+    display:none;
+    background:
+        radial-gradient(circle at 50% -20%,#12376d 0%,#050d1d 40%,#020817 75%);
+}
+
+.topbar{
+    height:65px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 18px;
+    border-bottom:1px solid rgba(217,180,91,.2);
+    background:rgba(2,8,23,.82);
+    backdrop-filter:blur(20px);
+}
+
+.brand{
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:3px;
+}
+
+.brand span{
+    color:#d9b45b;
+}
+
+.top-icons{
+    display:flex;
+    gap:18px;
+    font-size:23px;
+}
+
+.stories{
+    display:flex;
+    gap:15px;
+    padding:18px;
+    overflow-x:auto;
+    border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.story{
+    min-width:68px;
+    text-align:center;
+    font-size:11px;
+    color:#bfc9df;
+}
+
+.story-ring{
+    width:62px;
+    height:62px;
+    border-radius:50%;
+    padding:3px;
+    margin:auto auto 6px;
+    background:linear-gradient(135deg,#d9b45b,#315fa8,#d9b45b);
+}
+
+.story-inner{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    background:#07162f;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+}
+
+.feed{
+    height:calc(100vh - 145px);
+    overflow-y:auto;
+    padding-bottom:90px;
+}
+
+.post{
+    margin:15px;
+    border:1px solid rgba(217,180,91,.16);
+    border-radius:18px;
+    overflow:hidden;
+    background:rgba(7,18,39,.78);
+    box-shadow:0 10px 40px rgba(0,0,0,.25);
+}
+
+.post-head{
+    display:flex;
+    align-items:center;
+    padding:13px;
+    gap:10px;
+}
+
+.avatar{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#163e79,#d9b45b);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.username{
+    font-size:14px;
+    font-weight:bold;
+}
+
+.location{
+    font-size:10px;
+    color:#8998b5;
+    margin-top:3px;
+}
+
+.more{
+    margin-left:auto;
+    color:#d9b45b;
+}
+
+.post-image{
+    height:330px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+        radial-gradient(circle,#164889,#07172f 65%,#020817);
+    font-size:55px;
+    color:#d9b45b;
+}
+
+.actions{
+    display:flex;
+    gap:20px;
+    padding:14px;
+    font-size:24px;
+}
+
+.actions span:last-child{
+    margin-left:auto;
+}
+
+.caption{
+    padding:0 14px 17px;
+    font-size:13px;
+    color:#d6deef;
+}
+
+/* =========================
+   BOTTOM NAV
+========================= */
+
+.bottom-nav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    height:72px;
+    display:flex;
+    align-items:center;
+    justify-content:space-around;
+    background:rgba(2,8,23,.92);
+    backdrop-filter:blur(22px);
+    border-top:1px solid rgba(217,180,91,.2);
+    z-index:50;
+}
+
+.nav-item{
+    font-size:23px;
+    color:#7383a0;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.nav-item.active{
+    color:#d9b45b;
+    text-shadow:0 0 12px #d9b45b;
+}
+
+.create{
+    width:48px;
+    height:38px;
+    border:1px solid #d9b45b;
+    border-radius:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#d9b45b;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes logoEnter{
+    0%{
+        opacity:0;
+        transform:scale(.5) translateY(30px);
+    }
+    60%{
+        opacity:1;
+        transform:scale(1.08);
+    }
+    100%{
+        transform:scale(1);
+    }
+}
+
+@keyframes taglineIn{
+    from{
+        opacity:0;
+        transform:translateY(15px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@keyframes loading{
+    from{left:-50%}
+    to{left:100%}
+}
+
+@keyframes splashOut{
+    to{
+        opacity:0;
+        visibility:hidden;
+    }
+}
+
+@media(min-width:700px){
+    #app{
+        max-width:500px;
+        margin:auto;
+        border-left:1px solid #172b4e;
+        border-right:1px solid #172b4e;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     SPLASH
+========================= -->
+
+<section id="splash">
+
+    <div class="splash-glow"></div>
+
+    <div class="logo">
+
+        <div class="logo-symbol">P</div>
+
+        <div class="logo-name">
+            PRYSHO
+        </div>
+
+        <div class="heart-code">
+            &lt;3!!
+        </div>
+
+        <div class="tagline">
+            Something different. Something PRYSHO !!!
+        </div>
+
+    </div>
+
+    <div class="loader"></div>
+
+</section>
+
+
+<!-- =========================
+     APP
+========================= -->
+
+<main id="app">
+
+    <header class="topbar">
+
+        <div class="brand">
+            PRY<span>SHO</span>
+        </div>
+
+        <div class="top-icons">
+            <span>♡</span>
+            <span>◇</span>
+        </div>
+
+    </header>
+
+
+    <!-- STORIES -->
+
+    <section class="stories">
+
+        <div class="story">
+            <div class="story-ring">
+                <div class="story-inner">+</div>
+            </div>
+            Your story
+        </div>
+
+        <div class="story">
+            <div class="story-ring">
+                <div class="story-inner">P</div>
+            </div>
+            Priya
+        </div>
+
+        <div class="story">
+            <div class="story-ring">
+                <div class="story-inner">A</div>
+            </div>
+            Ansh
+        </div>
+
+        <div class="story">
+            <div class="story-ring">
+                <div class="story-inner">D</div>
+            </div>
+            Diksha
+        </div>
+
+        <div class="story">
+            <div class="story-ring">
+                <div class="story-inner">S</div>
+            </div>
+            Shubham
+        </div>
+
+    </section>
+
+
+    <!-- FEED -->
+
+    <section class="feed">
+
+        <article class="post">
+
+            <div class="post-head">
+
+                <div class="avatar">P</div>
+
+                <div>
+                    <div class="username">prysho</div>
+                    <div class="location">PRYSHO • INDIA</div>
+                </div>
+
+                <div class="more">•••</div>
+
+            </div>
+
+
+            <div class="post-image">
+                ✦
+            </div>
+
+
+            <div class="actions">
+
+                <span>♡</span>
+                <span>◯</span>
+                <span>➤</span>
+                <span>◇</span>
+
+            </div>
+
+
+            <div class="caption">
+                <b>PRYSHO</b> — Something different. Something PRYSHO.
+            </div>
+
+        </article>
+
+
+        <article class="post">
+
+            <div class="post-head">
+
+                <div class="avatar">S</div>
+
+                <div>
+                    <div class="username">shubham</div>
+                    <div class="location">PRYSHO</div>
+                </div>
+
+                <div class="more">•••</div>
+
+            </div>
+
+            <div class="post-image">
+                <span>PRYSHO</span>
+            </div>
+
+            <div class="actions">
+                <span>♡</span>
+                <span>◯</span>
+                <span>➤</span>
+                <span>◇</span>
+            </div>
+
+            <div class="caption">
+                Building something different. 💙
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- BOTTOM NAV -->
+
+    <nav class="bottom-nav">
+
+        <div class="nav-item active">⌂</div>
+
+        <div class="nav-item">⌕</div>
+
+        <div class="nav-item create">＋</div>
+
+        <div class="nav-item">▶</div>
+
+        <div class="nav-item">◉</div>
+
+    </nav>
+
+</main>
+
+
+<script>
+
+setTimeout(function(){
+
+    document.getElementById("splash").style.display="none";
+    document.getElementById("app").style.display="block";
+
+    document.body.style.overflow="auto";
+
+},6200);
+
+
+/* Bottom navigation visual interaction */
+
+const navItems=document.querySelectorAll(".nav-item");
+
+navItems.forEach(item=>{
+
+    item.addEventListener("click",()=>{
+
+        navItems.forEach(n=>n.classList.remove("active"));
+
+        if(!item.classList.contains("create")){
+            item.classList.add("active");
+        }
+
+    });
+
+});
+
+</script>
+
+</body>
+</html>
