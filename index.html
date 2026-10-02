@@ -373,5 +373,61 @@ function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','
     SUPABASE_PUBLISHABLE_KEY
   );
 </script>
+  <!-- PRYSHO AUTH -->
+<div id="authBox" style="
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:#050b20eF;z-index:9999;padding:20px;">
+  
+  <div style="
+    width:100%;max-width:380px;padding:28px;border-radius:24px;
+    background:#071332;border:1px solid #d4af37;box-shadow:0 0 30px #000;">
+    
+    <h2 style="color:#d4af37;text-align:center;">PRYSHO</h2>
+    
+    <input id="authEmail" type="email" placeholder="Email"
+      style="width:100%;padding:13px;margin:8px 0;border-radius:12px;">
+      
+    <input id="authPassword" type="password" placeholder="Password"
+      style="width:100%;padding:13px;margin:8px 0;border-radius:12px;">
+      
+    <button onclick="signUpPRYSHO()" style="width:100%;padding:13px;margin-top:10px;">
+      Create Account
+    </button>
+    
+    <button onclick="loginPRYSHO()" style="width:100%;padding:13px;margin-top:8px;">
+      Login
+    </button>
+    
+    <p id="authMessage" style="color:white;text-align:center;"></p>
+  </div>
+</div>
+
+<script>
+async function signUpPRYSHO() {
+  const email = document.getElementById("authEmail").value;
+  const password = document.getElementById("authPassword").value;
+
+  const { error } = await supabase.auth.signUp({
+    email: email,
+    password: password
+  });
+
+  document.getElementById("authMessage").textContent =
+    error ? error.message : "Account created! Check your email.";
+}
+
+async function loginPRYSHO() {
+  const email = document.getElementById("authEmail").value;
+  const password = document.getElementById("authPassword").value;
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  document.getElementById("authMessage").textContent =
+    error ? error.message : "Login successful! 💙";
+}
+</script>
 </body>
 </html>
