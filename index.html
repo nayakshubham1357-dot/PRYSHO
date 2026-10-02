@@ -427,9 +427,15 @@ async function loginPRYSHO() {
     password: password
   });
 
-  document.getElementById("authMessage").textContent =
-    error ? error.message : "Login successful! 💙";
-}
+  if (error) {
+  document.getElementById("authMessage").textContent = error.message;
+} else {
+  document.getElementById("authMessage").textContent = "Login successful! 💙";
+
+  document.getElementById("authBox").style.display = "none";
+  enterApp();
+  }";
+
 </script>
 </body>
 </html>
