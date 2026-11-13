@@ -412,7 +412,7 @@ function buildPostCard(post,profile,likeInfo){
   const locationText=location?' • '+location:'';
   const count=likeInfo?.count||0;
   const liked=!!likeInfo?.liked;
-  article.innerHTML='<div class="post-head"><div class="avatar">'+escapeHtml(initial)+'</div><div><div class="name">'+escapeHtml(displayName)+'</div><div class="muted">@'+escapeHtml(username)+' • '+formatPostTime(post.created_at)+locationText+'</div></div><button class="more">···</button></div><div class="post-image">'+media+'</div><div class="post-actions"><button type="button" class="action '+(liked?'liked':'')+'" data-like-btn="1" data-post-id="'+post.id+'" aria-label="'+(liked?'Unlike post':'Like post')+'">'+(liked?'♥':'♡')+'</button><button class="action" onclick="openPostComments(\''+post.id+'\')">◌</button><button class="action">↗</button><button class="action" style="margin-left:auto">⌑</button></div><div class="post-body"><div class="likes" data-like-count="'+post.id+'" onclick="openLikes(\''+post.id+'\')">'+count+' '+(count===1?'like':'likes')+'</div><div class="caption">'+(caption?'<b>'+escapeHtml(username)+'</b> '+caption:'')+'</div><div class="comments" onclick="openPostComments(\''+post.id+'\')">View comments</div></div>';
+  article.innerHTML='<div class="post-head"><div class="avatar">'+escapeHtml(initial)+'</div><div><div class="name">'+escapeHtml(displayName)+'</div><div class="muted">@'+escapeHtml(username)+' • '+formatPostTime(post.created_at)+locationText+'</div></div><button class="more">···</button></div><div class="post-image">'+media+'</div><div class="post-actions"><button type="button" class="action '+(liked?'liked':'')+'" data-like-btn="1" data-post-id="'+post.id+'">'+(liked?'♥':'♡')+'</button><button class="action" onclick="openPostComments(\''+post.id+'\')">◌</button><button class="action">↗</button><button class="action" style="margin-left:auto">⌑</button></div><div class="post-body"><div class="likes" data-like-count="'+post.id+'" onclick="openLikes(\''+post.id+'\')">'+count+' '+(count===1?'like':'likes')+'</div><div class="caption">'+(caption?'<b>'+escapeHtml(username)+'</b> '+caption:'')+'</div><div class="comments" onclick="openPostComments(\''+post.id+'\')">View comments</div></div>';
   return article;
 }
 async function getCurrentUser(){
@@ -558,51 +558,41 @@ function quickPost(){
 }
 async function togglePostLike(postId,btn){
   if(!btn || btn.dataset.busy==='1')return;
-  const wasLiked=btn.classList.contains('liked');
-  const oldText=btn.textContent;
   btn.dataset.busy='1';
-  btn.disabled=true;
-  btn.textContent='…';
-  btn.setAttribute('aria-label','Updating like');
   try{
     const {client,user}=await getCurrentUser();
-    if(wasLiked){
-      const {error}=await client.from('post_likes').delete()
-        .eq('post_id',postId).eq('user_id',user.id);
+    const isLiked=btn.classList.contains('liked');
+    if(isLiked){
+      const {error}=await client.from('post_likes').delete().eq('post_id',postId).eq('user_id',user.id);
       if(error)throw error;
       btn.classList.remove('liked');
       btn.textContent='♡';
-      btn.setAttribute('aria-label','Like post');
       updateLikeCount(postId,-1);
     }else{
       const {error}=await client.from('post_likes').insert({post_id:postId,user_id:user.id});
       if(error)throw error;
       btn.classList.add('liked');
       btn.textContent='♥';
-      btn.setAttribute('aria-label','Unlike post');
       updateLikeCount(postId,1);
     }
   }catch(err){
     console.error('PRYSHO like error:',err);
-    btn.textContent=oldText;
-    btn.classList.toggle('liked',wasLiked);
-    btn.setAttribute('aria-label',wasLiked?'Unlike post':'Like post');
-    alert('Like could not be saved: '+(err?.message||'Please try again.'));
+    alert(err?.message||'Could not update like.');
   }finally{
     btn.dataset.busy='0';
-    btn.disabled=false;
   }
 }
 
-// One delegated handler: live feed cards are created dynamically after login.
+// PRYSHO Likes: capture clicks before other page handlers can stop bubbling.
 document.addEventListener('click',function(event){
   const target=event.target;
-  const btn=target && target.closest ? target.closest('button[data-like-btn="1"]') : null;
+  const btn=target && target.closest ? target.closest('[data-like-btn]') : null;
   if(!btn)return;
   event.preventDefault();
   event.stopPropagation();
-  const postId=btn.getAttribute('data-post-id') || btn.closest('.card')?.dataset?.postId;
-  if(!postId){alert('Could not identify this post. Please refresh the feed.');return;}
+  if(btn.dataset.busy==='1')return;
+  const postId=btn.getAttribute('data-post-id');
+  if(!postId){ alert('Like error: post ID is missing.'); return; }
   togglePostLike(postId,btn);
 },true);
 
